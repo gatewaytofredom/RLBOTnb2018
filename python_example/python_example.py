@@ -8,29 +8,28 @@ from rlbot.agents.base_agent import BaseAgent, SimpleControllerState
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 
 
+
 class PythonExample(BaseAgent):
-
-    goal_vector = (0,0)
-
-    #Variable container for state of bot:
-    #   WAITING - waiting for match start
-    #   KICKOFF - kickoff run
-    #   RUNNING - Normal play state
-    GAMESTATE = "WAITING"
     
     def initialize_agent(self):
         #This runs once before the bot starts up
         self.controller_state = SimpleControllerState()
 
+        #Variable container for state of bot:
+        #   WAITING - waiting for match start
+        #   KICKOFF - kickoff run
+        #   RUNNING - Normal play state
+        self.GAMESTATE = "WAITING"
+
     def get_output(self, packet: GameTickPacket) -> SimpleControllerState:
         
         fieldstate = FieldState(packet, self)
 
-        if GAMESTATE == "WAITING":
+        if self.GAMESTATE == "WAITING":
             pass 
-        if GAMESTATE == "KICKOFF":
+        if self.GAMESTATE == "KICKOFF":
             return kickoff.run()
-        if GAMESTATE == "RUNNING":
+        if self.GAMESTATE == "RUNNING":
             pass
 
         #Output nothing if state is not defined
