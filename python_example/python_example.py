@@ -29,8 +29,6 @@ class PythonExample(BaseAgent):
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
 
-        goal
-
         steer_correction_radians = car_direction.correction_to(car_to_ball)
 
         #normalize distence to ball to determine car throttle
