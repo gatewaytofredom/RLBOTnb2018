@@ -29,8 +29,8 @@ class PythonExample(BaseAgent):
         if GAMESTATE == "WAITING":
             pass 
         if GAMESTATE == "KICKOFF":
-            return kickoff.run
-        if GAMESTATE == "RUNNING"
+            return kickoff.run()
+        if GAMESTATE == "RUNNING":
             pass
 
         #Output nothing if state is not defined
