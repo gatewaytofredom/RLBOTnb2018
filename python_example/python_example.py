@@ -6,11 +6,7 @@ from rlbot.utils.structures.game_data_struct import GameTickPacket
 
 class PythonExample(BaseAgent):
 
-    old_value = 10000
-    old_min = -16000
-    old_max = 16000
-    new_min = 0
-    new_max = 100
+    goal_vector = (0,0)
     
     def initialize_agent(self):
         #This runs once before the bot starts up
@@ -20,6 +16,14 @@ class PythonExample(BaseAgent):
         
         my_car = packet.game_cars[self.index]
         my_team = self.team
+
+        #Tells the bot what cords the enemy goal is
+        if my_team == 0:
+            goal_vector = (0,5120)
+        else:
+            goal_vector = (0,-5120)
+
+
 
         ball_location = Vector3(packet.game_ball.physics.location.x, packet.game_ball.physics.location.y)
         
