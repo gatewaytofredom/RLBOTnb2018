@@ -23,13 +23,11 @@ class PythonExample(BaseAgent):
         my_car = packet.game_cars[self.index]
         my_team = self.team
 
-        ball_location = Vector2(packet.game_ball.physics.location.x, packet.game_ball.physics.location.y)
+        ball_location = Vector3(packet.game_ball.physics.location.x, packet.game_ball.physics.location.y)
         
-        car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
+        car_location = Vector3(my_car.physics.location.x, my_car.physics.location.y)
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
-
-        goal
 
         steer_correction_radians = car_direction.correction_to(car_to_ball)
 
@@ -58,20 +56,18 @@ class PythonExample(BaseAgent):
 
         return self.controller_state
 
-class Vector2:
+class Vector3:
 
-    def length(self):
-        return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
-
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0, y=0, z=0):
         self.x = float(x)
         self.y = float(y)
+        self.z = float(z)
 
     def __add__(self, val):
-        return Vector2(self.x + val.x, self.y + val.y)
+        return Vector3(self.x + val.x, self.y + val.y, self.z + val.z)
 
     def __sub__(self, val):
-        return Vector2(self.x - val.x, self.y - val.y)
+        return Vector3(self.x - val.x, self.y - val.y, self.z - val.z)
 
     def correction_to(self, ideal):
         # The in-game axes are left handed, so use -x
@@ -89,6 +85,18 @@ class Vector2:
 
         return correction
 
+    def length(self):
+        return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2) + math.pow(self.z, 2))
+
+    #get difference in angles between 2 vector pairs
+    @staticmethod
+    def angle_between(vec1, vec2):
+        return math.acos((Vector3.dot(vec1, vec2))/(vec1.length() * vec2.length()))
+    
+    @staticmethod
+    def dot(vec1, vec2):
+        return (vec1.x * vec2.x) + (vec1.y * vec2.y) + (vec1.z * vec2.z)
+
 def get_car_facing_vector(car):
     pitch = float(car.physics.rotation.pitch)
     yaw = float(car.physics.rotation.yaw)
@@ -96,18 +104,15 @@ def get_car_facing_vector(car):
     facing_x = math.cos(pitch) * math.cos(yaw)
     facing_y = math.cos(pitch) * math.sin(yaw)
 
-    return Vector2(facing_x, facing_y)
+    return Vector3(facing_x, facing_y)
 
 #This is where you want the car to deliver the ball too
 #could be to a goal or a team-mate
 def ball_ideal_cords(x,y):
-    ball_ideal_cords = Vector2(x,y)
+    ball_ideal_cords = Vector3(x,y)
     return ball_ideal_cords
 
-#get difference in angels between 2 vector pairs
-def get_angle_dif(vec1, vec2):
-    angle_dif = math.acos((vec1 @ vec2)/(vec1.length() * vec2.length()))
-    return angle_dif
+
 
 
 
