@@ -15,7 +15,7 @@ class PythonExample(BaseAgent):
         my_car = packet.game_cars[self.index]
 
         ball_location = Vector2(packet.game_ball.physics.location.x, packet.game_ball.physics.location.y)
-        car_location = Vector2(my_car.physics.location.x, my_car.physics.location.y)
+        car_location = Vector3.car_location
         car_direction = get_car_facing_vector(my_car)
         car_to_ball = ball_location - car_location
 
