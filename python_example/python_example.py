@@ -12,8 +12,6 @@ class PythonExample(BaseAgent):
     new_min = 0
     new_max = 100
     
-
-
     def initialize_agent(self):
         #This runs once before the bot starts up
         self.controller_state = SimpleControllerState()
@@ -32,17 +30,13 @@ class PythonExample(BaseAgent):
         steer_correction_radians = car_direction.correction_to(car_to_ball)
 
         #normalize distence to ball to determine car throttle
-        distence_to_ball = math.sqrt(math.pow(car_to_ball.x,2) + math.pow(car_to_ball.y,2))
+        distence_to_ball = car_to_ball.length()
         print(distence_to_ball)
         if distence_to_ball < 8000:
             normalized = distence_to_ball/8000
             print("norm : "+str(distence_to_ball/8000))
         else:
             normalized = 1
-
-        
-
-
 
         if steer_correction_radians > 0:
             # Positive radians in the unit circle is a turn to the left.
