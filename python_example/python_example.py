@@ -23,8 +23,6 @@ class PythonExample(BaseAgent):
         else:
             goal_vector = (0,-5120)
 
-
-
         ball_location = Vector3(packet.game_ball.physics.location.x, packet.game_ball.physics.location.y)
         
         car_location = Vector3(my_car.physics.location.x, my_car.physics.location.y)
@@ -109,6 +107,11 @@ def get_car_facing_vector(car):
 def ball_ideal_cords(x,y):
     ball_ideal_cords = Vector3(x,y)
     return ball_ideal_cords
+
+
+#PID for turning the bot
+def update_turning_pid(car_location,ball_location):
+    angle_dif = Vector3.angle_between(car_location,ball_location)
 
 
 
