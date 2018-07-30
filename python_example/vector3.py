@@ -32,6 +32,9 @@ class Vector3:
     def length(self):
         return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2) + math.pow(self.z, 2))
 
+    def normalize(self):
+        return Vector3(self.x / self.length(), self.y / self.length(), self.z / self.length())
+
     #get difference in angles between 2 vector pairs
     @staticmethod
     def angle_between(vec1, vec2):
