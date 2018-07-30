@@ -28,7 +28,7 @@ class PythonExample(BaseAgent):
         if self.GAMESTATE == "WAITING":
             pass 
         if self.GAMESTATE == "KICKOFF":
-            return kickoff.run()
+            return kickoff.run(packet)
         if self.GAMESTATE == "RUNNING":
             pass
 
