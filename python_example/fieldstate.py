@@ -1,4 +1,5 @@
 import math
+import time
 
 from rlbot.agents.base_agent import BaseAgent, SimpleControllerState
 from rlbot.utils.structures.game_data_struct import GameTickPacket
@@ -8,11 +9,28 @@ from vector3 import Vector3
 Class for packaging game state into usable bits
 '''
 class FieldState:
-    def __init__(self, packet: GameTickPacket, bot):
+    def __init__(self):
+        self.start_time = time.time()
+        self.prev_time = self.start_time
+        self.current_time = self.start_time
+
+    def update(self, packet: GameTickPacket, bot):
         self.packet = packet
         self.bot_car_index = bot.index
         self.bot_car = packet.game_cars[bot.index]
         self.team = bot.team
+
+        #setup time
+        self.prev_time = self.current_time
+        self.current_time = time.time()
+        self.dt = self.current_time - self.start_time
+
+    def elapsed_time(self):
+        return self.current_time - self.start_time
+
+    #only use for rough calculations, subject to drift
+    def delta_time(self):
+        return self.dt
 
     def goal_pos(self):
         if self.team == 0:
@@ -32,6 +50,13 @@ class FieldState:
             self.bot_car.physics.location.x,
             self.bot_car.physics.location.y,
             self.bot_car.physics.location.z,
+        )
+
+    def car_velocity(self):
+        return Vector3(
+            self.bot_car.physics.velocity.x,
+            self.bot_car.physics.location.y,
+            self.bot_car.physics.location.z
         )
 
     def car_facing_vector(self, car_index=None):
