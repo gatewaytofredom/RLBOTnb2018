@@ -17,7 +17,7 @@ class PID:
     def update(self, goal, current, dt):
         error = goal - current
         self.integral += error * dt
-        derivative = (current - self.prev) * dt
+        derivative = (current - self.prev) / dt
         return (self.p * error) + (self.i * self.integral) + (self.d * derivative)
 
 
@@ -27,11 +27,11 @@ class PID:
 #Absolute (corrective) PIDs: Use absolute position, rotation
 # Account for error accumulation
 
-vel_pid = PID(0.0004, 0, 0)
-position_pid = PID(0, 0, 0)
+vel_pid = PID(0.04, 0.000000001, 0)
+position_pid = PID(0.016, 0, 0)
 
-heading_pid = PID(0.5, 0, 0)
-heading_abs_pid = PID(0, 0, 0)
+heading_pid = PID(0.8, 0, 0)
+heading_abs_pid = PID(0.1, 0.005, 0)
 
 fi = open("test.csv", "w")
 fi.write("{},{},{},{},{},{},{},{},{},{}\n".format(
@@ -68,18 +68,27 @@ def run(packet, fieldstate, start_pose):
 
     #velocity PID
     output.throttle = clamp(
-        position_pid.update(
+        vel_pid.update(
             goal_velocity.length(),
             fieldstate.car_velocity().length(),
             fieldstate.delta_time()
         ) +
-        vel_pid.update(
+        position_pid.update(
             error_vector.length(),
             0,
             fieldstate.delta_time()
         ),
-    1.0, 0)
+    1.0, -1.0)
 
+    if output.throttle < 0:
+        print("EEEEEEEEEEEEEEEE: {}".format(output.throttle))
+
+    print("VELOCITY: {}".format(
+        fieldstate.car_velocity().length()
+    ))
+    print("GOAL: {}".format(
+        goal_velocity.length()
+    ))
 
     #heading PID
     output.steer = clamp(
@@ -89,7 +98,7 @@ def run(packet, fieldstate, start_pose):
             fieldstate.delta_time()
         ) +
         heading_abs_pid.update(
-            correction_angle * sign(output.throttle),
+            -correction_angle * sign(output.throttle),
             0,
             fieldstate.delta_time()
         ),
@@ -133,11 +142,14 @@ def clamp(val, maximum, minimum):
     return r
 
 def f(t):
-    print("T: {}".format(t))
+    # print("T: {}".format(t))
     return Vector3(
-        -500 * t, 
-        -500 * t
+        -1500*math.sin(((2*math.pi)/10000) * 163 * 2 * math.pi * t),
+        -163 * 2 * math.pi * t
     )
 
 def der_f(t):
-    return Vector3(-500, -500)
+    return Vector3(
+        -1500*((2*math.pi)/10000)*163*2*math.pi*math.cos(((2*math.pi)/10000) * 163 * 2 * math.pi * t), 
+        -163 * 2 * math.pi
+    )
