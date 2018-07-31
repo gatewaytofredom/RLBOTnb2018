@@ -23,7 +23,7 @@ class FieldState:
         #setup time
         self.prev_time = self.current_time
         self.current_time = time.time()
-        self.dt = self.current_time - self.start_time
+        self.dt = self.current_time - self.prev_time
 
     def elapsed_time(self):
         return self.current_time - self.start_time
@@ -55,8 +55,8 @@ class FieldState:
     def car_velocity(self):
         return Vector3(
             self.bot_car.physics.velocity.x,
-            self.bot_car.physics.location.y,
-            self.bot_car.physics.location.z
+            self.bot_car.physics.velocity.y,
+            self.bot_car.physics.velocity.z
         )
 
     def car_facing_vector(self, car_index=None):
