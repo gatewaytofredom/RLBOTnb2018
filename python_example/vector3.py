@@ -35,6 +35,13 @@ class Vector3:
     def normalize(self):
         return Vector3(self.x / self.length(), self.y / self.length(), self.z / self.length())
 
+    def __str__(self):
+        return "<Vector3 ({}, {}, {})>".format(
+            self.x,
+            self.y,
+            self.z
+        )
+
     #get difference in angles between 2 vector pairs
     @staticmethod
     def angle_between(vec1, vec2):
