@@ -21,7 +21,7 @@ class PythonExample(BaseAgent):
         #   WAITING - waiting for match start
         #   KICKOFF - kickoff run
         #   RUNNING - Normal play state
-        self.GAMESTATE = "KICKOFF"
+        self.GAMESTATE = "RUNNING"
         self.t = time.time()
         self.first_run = True
 
@@ -33,8 +33,12 @@ class PythonExample(BaseAgent):
 
         self.fieldstate.update(packet, self)
 
+        if self.fieldstate.elapsed_time() < 5:
+            return SimpleControllerState()
+
         if self.first_run:
-            first_run = False
+            print("FIRST LOL {}".format(self.fieldstate.car_location()))
+            self.first_run = False
             self.start_pose = self.fieldstate.car_location()
 
         if packet.game_ball.physics.location.x != 0 and packet.game_ball.physics.location.y !=0:
@@ -43,7 +47,7 @@ class PythonExample(BaseAgent):
         if self.GAMESTATE == "WAITING":
             pass 
         if self.GAMESTATE == "KICKOFF":
-            return kickoff.run(packet, fieldstate)
+            return kickoff.run(packet, self.fieldstate)
         if self.GAMESTATE == "RUNNING":
             return persuit.run(packet, self.fieldstate, self.start_pose)
 
