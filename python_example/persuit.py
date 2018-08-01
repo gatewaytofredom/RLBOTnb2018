@@ -4,6 +4,7 @@ import time
 from rlbot.agents.base_agent import BaseAgent, SimpleControllerState
 from rlbot.utils.structures.game_data_struct import GameTickPacket
 from vector3 import Vector3
+from splines import HermiteSpline
 
 class PID:
     def __init__(self, p, i, d):
@@ -17,7 +18,9 @@ class PID:
     def update(self, goal, current, dt):
         error = goal - current
         self.integral += error * dt
-        derivative = (current - self.prev) / dt
+        derivative = 0
+        if self.d != 0:
+            derivative = (current - self.prev) / dt
         return (self.p * error) + (self.i * self.integral) + (self.d * derivative)
 
 
@@ -32,6 +35,8 @@ position_pid = PID(0.016, 0, 0)
 
 heading_pid = PID(0.8, 0, 0)
 heading_abs_pid = PID(0.1, 0.005, 0)
+
+h_spline = HermiteSpline(None, None, None, None)
 
 fi = open("test.csv", "w")
 fi.write("{},{},{},{},{},{},{},{},{},{}\n".format(
@@ -52,16 +57,26 @@ def run(packet, fieldstate, start_pose):
         print(str(fieldstate.elapsed_time()))
         return SimpleControllerState()
 
-    goal_position = start_pose + f(fieldstate.elapsed_time() - 8)
+
+    spline_pos, spline_d = h_spline.get(fieldstate.elapsed_time() - 8, (1.0/10.0))
+
+    # print("TRANSFORMED SPLINE: {}".format(
+    #     spline_pos
+    # ))
+    # print("CURRENT CAR POS: {}".format(
+    #     fieldstate.car_location()
+    # ))
+
+    goal_position = start_pose + spline_pos
     error_vector = goal_position - fieldstate.car_location()
 
     correction_angle = fieldstate.car_facing_vector().correction_to(
         error_vector
     )
 
-    goal_velocity = der_f(fieldstate.elapsed_time() - 8)
+    goal_velocity = spline_d
     goal_angle = fieldstate.car_facing_vector().correction_to(
-        der_f(fieldstate.elapsed_time() - 8)
+        spline_d
     )
 
     output = SimpleControllerState()
@@ -83,12 +98,12 @@ def run(packet, fieldstate, start_pose):
     if output.throttle < 0:
         print("EEEEEEEEEEEEEEEE: {}".format(output.throttle))
 
-    print("VELOCITY: {}".format(
-        fieldstate.car_velocity().length()
-    ))
-    print("GOAL: {}".format(
-        goal_velocity.length()
-    ))
+    # print("VELOCITY: {}".format(
+    #     fieldstate.car_velocity().length()
+    # ))
+    # print("GOAL: {}".format(
+    #     goal_velocity.length()
+    # ))
 
     #heading PID
     output.steer = clamp(
