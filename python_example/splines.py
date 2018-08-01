@@ -50,12 +50,12 @@ class HermiteSpline:
         )
 
         #transform back to standard coords
-        inverse = basis.inverse()
-        if inverse == None:
-            print("NO INVERSE: {}".format(basis))
-            return Vector3.zero()
+        # inverse = basis.inverse()
+        # if inverse == None:
+        #     print("NO INVERSE: {}".format(basis))
+        #     return Vector3.zero()
 
-        return ((inverse * spline) + self.p0, (inverse * spline_der))
+        return ((basis * spline) + self.p0, (basis * spline_der))
 
     #Hermite basis functions
     #https://www.rose-hulman.edu/~finn/CCLI/Notes/day09.pdf

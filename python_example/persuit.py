@@ -60,14 +60,14 @@ def run(packet, fieldstate, start_pose):
 
     spline_pos, spline_d = h_spline.get(fieldstate.elapsed_time() - 8, (1.0/10.0))
 
-    # print("TRANSFORMED SPLINE: {}".format(
-    #     spline_pos
-    # ))
-    # print("CURRENT CAR POS: {}".format(
-    #     fieldstate.car_location()
-    # ))
+    print("TRANSFORMED SPLINE: {}".format(
+        spline_pos
+    ))
+    print("CURRENT CAR POS: {}".format(
+        fieldstate.car_location()
+    ))
 
-    goal_position = start_pose + spline_pos
+    goal_position = spline_pos
     error_vector = goal_position - fieldstate.car_location()
 
     correction_angle = fieldstate.car_facing_vector().correction_to(
