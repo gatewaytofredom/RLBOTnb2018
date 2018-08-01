@@ -39,7 +39,7 @@ heading_abs_pid = PID(0.1, 0.005, 0)
 h_spline = HermiteSpline(None, None, None, None)
 
 fi = open("test.csv", "w")
-fi.write("{},{},{},{},{},{},{},{},{},{}\n".format(
+fi.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(
     "Time",
     "Error Magnitude",
     "Goal x",
@@ -48,6 +48,12 @@ fi.write("{},{},{},{},{},{},{},{},{},{}\n".format(
     "Car y",
     "Goal velocity",
     "Car velocity",
+    "Goal Angle",
+    "Current Angle",
+    "Velocity PID",
+    "Position PID",
+    "Tangent Angle PID",
+    "Absolute Angle PID",
     "Throttle",
     "Steer"
 ))
@@ -58,7 +64,8 @@ def run(packet, fieldstate, start_pose):
         return SimpleControllerState()
 
 
-    spline_pos, spline_d = h_spline.get(fieldstate.elapsed_time() - 8, (1.0/10.0))
+    spline_pos, spline_d = h_spline.get(fieldstate.elapsed_time() - 8, (1.0 / 5.0))
+    # spline_pos, spline_d = (f(fieldstate.elapsed_time() - 8, (1.0)), der_f(fieldstate.elapsed_time() - 8, (1.0)))
 
     print("TRANSFORMED SPLINE: {}".format(
         spline_pos
@@ -82,50 +89,43 @@ def run(packet, fieldstate, start_pose):
     output = SimpleControllerState()
 
     #velocity PID
-    output.throttle = clamp(
-        vel_pid.update(
-            goal_velocity.length(),
-            fieldstate.car_velocity().length(),
-            fieldstate.delta_time()
-        ) +
-        position_pid.update(
-            error_vector.length(),
-            0,
-            fieldstate.delta_time()
-        ),
-    1.0, -1.0)
+    vel_pid_out = vel_pid.update(
+        goal_velocity.length(),
+        fieldstate.car_velocity().length(),
+        fieldstate.delta_time()
+    )
+
+    position_pid_out = position_pid.update(
+        error_vector.length(),
+        0,
+        fieldstate.delta_time()
+    )
+
+
+    output.throttle = clamp(vel_pid_out + position_pid_out, 1.0, -1.0)
 
     if output.throttle < 0:
         print("EEEEEEEEEEEEEEEE: {}".format(output.throttle))
 
-    # print("VELOCITY: {}".format(
-    #     fieldstate.car_velocity().length()
-    # ))
-    # print("GOAL: {}".format(
-    #     goal_velocity.length()
-    # ))
+
 
     #heading PID
-    output.steer = clamp(
-        heading_pid.update(
-            -goal_angle * sign(output.throttle),
-            0,
-            fieldstate.delta_time()
-        ) +
-        heading_abs_pid.update(
-            -correction_angle * sign(output.throttle),
-            0,
-            fieldstate.delta_time()
-        ),
-    1.0, -1.0)
 
-    # print("THROTTLE: {}".format(output.throttle))
-    # print("STEER: {}".format(output.steer))
-    # print("FACING VECTOR: {}".format(fieldstate.car_facing_vector().normalize()))
-    # print("ERROR VECTOR: {}".format(error_vector))
-    # print("DOT PRODUCT: {}".format(Vector3.dot(error_vector, fieldstate.car_facing_vector().normalize())))
+    heading_pid_out = heading_pid.update(
+        -goal_angle * sign(output.throttle),
+        0,
+        fieldstate.delta_time()
+    )
+
+    heading_abs_pid_out = heading_abs_pid.update(
+        -correction_angle * sign(output.throttle),
+        0,
+        fieldstate.delta_time()
+    )
+
+    output.steer = clamp(heading_pid_out + heading_abs_pid_out, 1.0, -1.0)
     
-    fi.write("{},{},{},{},{},{},{},{},{},{}\n".format(
+    fi.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(
         fieldstate.elapsed_time(),
         error_vector.length() * sign(Vector3.dot(error_vector, fieldstate.car_facing_vector().normalize())),
         goal_position.x,
@@ -134,16 +134,15 @@ def run(packet, fieldstate, start_pose):
         fieldstate.car_location().y,
         goal_velocity.length(),
         fieldstate.car_velocity().length(),
+        math.atan2(spline_d.y, spline_d.x),
+        math.atan2(fieldstate.car_facing_vector().y, fieldstate.car_facing_vector().x),
+        vel_pid_out,
+        position_pid_out,
+        heading_pid_out,
+        heading_abs_pid_out,
         output.throttle,
         output.steer
     ))
-
-    # fi.write("{},{},{},{}\n".format(
-    #     fieldstate.elapsed_time(), 
-    #     error_vector.length() * 
-    #     sign(Vector3.dot(error_vector, fieldstate.car_facing_vector().normalize())), 
-    #     output.throttle, output.steer)
-    # )
 
     return output
 
@@ -159,12 +158,12 @@ def clamp(val, maximum, minimum):
 def f(t):
     # print("T: {}".format(t))
     return Vector3(
-        -1500*math.sin(((2*math.pi)/10000) * 163 * 2 * math.pi * t),
-        -163 * 2 * math.pi * t
+        500 * t,
+        500 * t
     )
 
 def der_f(t):
     return Vector3(
-        -1500*((2*math.pi)/10000)*163*2*math.pi*math.cos(((2*math.pi)/10000) * 163 * 2 * math.pi * t), 
-        -163 * 2 * math.pi
+        500,
+        500
     )

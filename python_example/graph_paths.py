@@ -8,7 +8,7 @@ goal_y = []
 with open("test.csv", "r") as f:
     for l in f.read().split("\n"):
         row = l.split(",")
-        if len(row) != 10:
+        if len(row) != 16:
             continue
         try:
             car_x.append(float(row[4]))
@@ -18,6 +18,8 @@ with open("test.csv", "r") as f:
         except ValueError:
             continue
 
+plt.xlim(-4096, 4096)
+plt.ylim(-5120, 5120)
 plt.plot(goal_x, goal_y, color="green")
 plt.plot(car_x, car_y, color="red")
 plt.show()

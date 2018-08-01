@@ -46,7 +46,7 @@ class HermiteSpline:
 
         spline_der = Vector3(
             scale,
-            (self.d_H2(t) * slope_0) + (self.d_H3(t) * slope_1)
+            (self.d_H2(t, scale) * slope_0) + (self.d_H3(t, scale) * slope_1)
         )
 
         #transform back to standard coords
@@ -72,17 +72,17 @@ class HermiteSpline:
         return (3 * math.pow(t, 2)) - (2 * math.pow(t, 3))
 
     #Derivative functions
-    def d_H1(self, t):
-        return (-6 * t) + (6 * math.pow(t, 2))
+    def d_H1(self, t, scale):
+        return (-6 * scale * t) + (6 * scale * math.pow(t, 2))
     
-    def d_H2(self, t):
-        return 1 - (4 * t) + (3 * math.pow(t, 2))
+    def d_H2(self, t, scale):
+        return scale - (4 * scale * t) + (3 * scale * math.pow(t, 2))
 
-    def d_H3(self, t):
-        return (-2 * t) + (3 * math.pow(t, 2))
+    def d_H3(self, t, scale):
+        return (-2 * scale * t) + (3 * scale * math.pow(t, 2))
 
-    def d_H4(self, t):
-        return (6 * t) - (6 * math.pow(t, 2))
+    def d_H4(self, t, scale):
+        return (6 * scale * t) - (6 * scale * math.pow(t, 2))
 
 class Mat2x2:
     def __init__(self, a, b, c, d):
