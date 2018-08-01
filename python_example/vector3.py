@@ -1,7 +1,6 @@
 import math
 
 class Vector3:
-
     def __init__(self, x=0, y=0, z=0):
         self.x = float(x)
         self.y = float(y)
@@ -12,6 +11,13 @@ class Vector3:
 
     def __sub__(self, val):
         return Vector3(self.x - val.x, self.y - val.y, self.z - val.z)
+
+    def __mul__(self, val):
+        val = float(val)
+        return Vector3(val * self.x, val * self.y, val * self.z)
+
+    def __rmul__(self, val):
+        return self.__mul__(val)
 
     def correction_to(self, ideal):
         # The in-game axes are left handed, so use -x
@@ -50,3 +56,23 @@ class Vector3:
     @staticmethod
     def dot(vec1, vec2):
         return (vec1.x * vec2.x) + (vec1.y * vec2.y) + (vec1.z * vec2.z)
+
+    @staticmethod
+    def cross(a, b):
+        return Vector3(
+            (a.y * b.z) - (a.z * b.y),
+            (a.z * b.x) - (a.x * b.z),
+            (a.x * b.y) - (a.y * b.x)
+        )
+
+    @staticmethod
+    def i(): return Vector3(1, 0, 0)
+    
+    @staticmethod
+    def j(): return Vector3(0, 1, 0)
+
+    @staticmethod
+    def k(): return Vector3(0, 0, 1)
+
+    @staticmethod
+    def zero(): return Vector3(0, 0 ,0)
