@@ -34,9 +34,9 @@ class FieldState:
 
     def goal_pos(self):
         if self.team == 0:
-            return (0,5120)
+            return Vector3(0,5120)
         else:
-            return (0, -5120)
+            return Vector3(0, -5120)
 
     def ball_location(self):
         return Vector3(
@@ -73,3 +73,6 @@ class FieldState:
         facing_y = math.cos(pitch) * math.sin(yaw)
 
         return Vector3(facing_x, facing_y)
+
+    def car_in_field(self, car_index=None):
+        return abs(self.car_location().y) < 5120 and abs(self.car_location().x < 4096)

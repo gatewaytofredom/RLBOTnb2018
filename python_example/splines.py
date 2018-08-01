@@ -2,7 +2,7 @@ from vector3 import Vector3
 import math
 
 
-f = open("spl.csv", "w")
+# f = open("spl.csv", "w")
 
 '''
 Container for generalized hermite spline
@@ -13,6 +13,7 @@ class HermiteSpline:
         self.p1 = p1
         self.v0 = v0
         self.v1 = v1
+        self.on_complete = None
 
     def get(self, t, scale):
         t = float(scale * t)
@@ -24,38 +25,34 @@ class HermiteSpline:
             y_basis
         )
 
-        print("MAT: {}".format(basis))
-
         transformed_v0 = (basis * self.v0).normalize()
         transformed_v1 = (basis * self.v1).normalize()
 
         slope_0 = transformed_v0.y / transformed_v0.x
         slope_1 = transformed_v1.y / transformed_v1.x
 
-        print("SLOPES: {}, {}".format(slope_0, slope_1))
-
         spline =  Vector3(
             t,
             (self.H2(t) * slope_0) + (self.H3(t) * slope_1)
         )
 
-        # print("SPLINE: {}".format(spline))
-        f.write("{},{}\n".format(
-            spline.x, spline.y 
-        ))
+        # f.write("{},{}\n".format(
+        #     spline.x, spline.y 
+        # ))
 
         spline_der = Vector3(
             scale,
             (self.d_H2(t, scale) * slope_0) + (self.d_H3(t, scale) * slope_1)
         )
 
-        #transform back to standard coords
-        # inverse = basis.inverse()
-        # if inverse == None:
-        #     print("NO INVERSE: {}".format(basis))
-        #     return Vector3.zero()
 
         return ((basis * spline) + self.p0, (basis * spline_der))
+
+    def finished(self, t, scale):
+        finished = (t * scale) > 0.95
+        if finished and (self.on_complete is not None):
+            self.on_complete()
+        return finished
 
     #Hermite basis functions
     #https://www.rose-hulman.edu/~finn/CCLI/Notes/day09.pdf
@@ -72,6 +69,9 @@ class HermiteSpline:
         return (3 * math.pow(t, 2)) - (2 * math.pow(t, 3))
 
     #Derivative functions
+    #So it turns out the chain rule is a thing that exists,
+    #and is needed when you're multiplying your time variable by a constant
+    #Hours wasted looking for bug: 4
     def d_H1(self, t, scale):
         return (-6 * scale * t) + (6 * scale * math.pow(t, 2))
     
