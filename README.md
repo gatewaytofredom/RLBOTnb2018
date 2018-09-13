@@ -19,7 +19,7 @@ It will eventually score a goal given enough time.
 
 ## Changing the bot
 
-- Bot behavior is controlled by `python_example/python_example.py`
+- Bot behavior is controlled by `python_example/2daybot.py`
 - Bot appearance is controlled by `python_example/appearance.cfg`
 
 ## Running the bot
